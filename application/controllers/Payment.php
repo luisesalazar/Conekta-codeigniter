@@ -17,28 +17,39 @@ class Payment extends CI_Controller {
     }
 
     public function create() {
-        $response= array();
-        if(!$this->input->is_ajax_request()){
-	    show_404();
-        }else{
-            print_r_pre_d($this->input->post());
-
+        $response= array("status"=>0,"msg"=>"Ocurrio un error");
+        if($this->input->is_ajax_request()){
+            
+            //obtener datos post
+            $card= $this->input->post('card');
+	   
             try {
-               //creamos un cargo
-                $charge = Conekta_Charge::create(array(
-                            'description' => 'Stogies',
-                            'reference_id' => '9839-wolf_pack',
-                            'amount' => 20000,
-                            'currency' => 'MXN',
-                            'card' => "tok_test_visa_4242",
-                            "details" => array(
-                                "email" => "logan@x-men.org"
-                            )
-                ));
 
-                $response['charge']= $charge;
+               //creamos un cargo
+                $charge_new = Conekta_Charge::create(array(
+                    'description'=> 'Stogies',
+                    'amount'=>20000,
+                    'currency'=>'MXN',
+                    'card'=> 'tok_test_visa_4242', //prueba, $this->input->post('token_id'),
+                    'details'=> array(
+                        'buyer'=> $card['name'],
+                        'precio'=> 2000,
+                        'cantidad'=> 1,
+                        'email'=>'logan@x-men.org'
+                    )
+                ));
+               
+                if($charge_new->status =='paid'){
+                    $response['status']=1;
+                    $response['charge_id']= $charge_new->id;
+                    $response['msg']="Pago existoso";
+                }else{
+                     $response['status']=0;
+                }
+                
             } catch (Conekta_Error $e) {
-                echo $e->getMessage();
+                $response['status']=0;
+                $response['msg']= $e->getMessage();
             }
         }
 

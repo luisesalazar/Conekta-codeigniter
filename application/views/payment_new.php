@@ -22,7 +22,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     Ejemplo de pago con conekta
                 </div>
                 <div class="panel-body ">
-                    <form class="form-horizontal" action="<?php echo base_url('payment/create'); ?>" method="POST" id="card-form">
+                    <form class="form-horizontal" action="#" method="POST" id="card-form">
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Nombre del tarjetahabiente</label>
                             <div class="col-sm-8">
@@ -78,18 +78,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     // Previene hacer submit más de una vez
                     $("#btn-pay").prop("disabled", true);
                     $("#btn-pay").html('<em>Procesando...</em>');
-                    /* Después de tener una respuesta exitosa, envía la información al servidor */
-
-                    Conekta.setPublishableKey(api);
-
-                    //COMENTADO A PROPOSITO PARA QUE NO VALIDE FECHA DE EXPIRACION
-                    //if (Conekta.card.validateExpirationDate($("#card_exp_mes").val(), $("#card_exp_anio").val())) {
-                    //    alert("Tarjeta expirada");
-                    //    return false;
-                    //}else{
-                            Conekta.token.create(form, successResponseHandler, errorResponseHandler);
-                    //}
-
+                    
+                    /* NO se olviden de setear sus api key en el archivo config/conekta.php */
+                    Conekta.setPublishableKey(api)
+                    
                     successResponseHandler = function(token) {
                         var card="";
                         var str="";
@@ -98,21 +90,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         });
                         str= str + "&token_id="+ token.id + card;
 
-                        //
-                        var card_brand= Conekta.card.getBrand($("#card_number").val());
-                        str= str + "&card_brand="+ card_brand;
-
                         return $.ajax({
                             type: 'POST',
-                            url: '<?php echo base_url('payment/create'); ?>',
+                            url: '<?php echo base_url('index.php/payment/create'); ?>',
                             data: str,
                             dataType: 'jsonp',
                             success: function(response){
-
-                                if(response.charge != undefined){
-                                    location.href= "<?php echo base_url('payment/find/'+response.charge.id); ?>"
+                                console.log(response);
+                                if(response.status){
+                                    location.href= "<?php echo base_url('index.php/payment/find'); ?>/" +response.charge_id;
                                 }else{
-                                    alert("Error al crear cargo");
+                                    alert(response.msg);
                                 }
 
                             }
@@ -124,7 +112,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             alert(error.message_to_purchaser);
                             return false;
                         };
-
+                        
+                    //COMENTADO A PROPOSITO PARA QUE NO VALIDE FECHA DE EXPIRACION
+                    //if (Conekta.card.validateExpirationDate($("#card_exp_mes").val(), $("#card_exp_anio").val())) {
+                    //    alert("Tarjeta expirada");
+                    //    return false;
+                    //}else{
+                            Conekta.token.create(form, successResponseHandler, errorResponseHandler);
+                    //}
+                    
                      return false;
                   });
 
