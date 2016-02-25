@@ -20,7 +20,10 @@ Implementación de conekta en CodeIgniter
 
 </li>
 <li>Al abrir el navegador y teclear la dirección de tu proyecto http://localhost/Conekta-codeigniter/ deberá mostrar la vista para capturar datos de la tarjeta de credito, solo presionar boton pagar ahora y mostrara el cargo generado en conekta.
+<img src="index.png">
 
+</li>
+<li>Controlador payment
 <pre>
 class Payment extends CI_Controller {
 
