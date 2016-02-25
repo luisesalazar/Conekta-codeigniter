@@ -19,39 +19,77 @@ Implementación de conekta en CodeIgniter
   </pre>
 
 </li>
-<li>Al abrir el navegador y teclear la dirección de tu proyecto http://dominio/conekta_codeigniter/ deberá imprimir los cargos generados en conekta.
+<li>Al abrir el navegador y teclear la dirección de tu proyecto http://localhost/Conekta-codeigniter/ deberá mostrar la vista para capturar datos de la tarjeta de credito, solo presionar boton pagar ahora y mostrara el cargo generado en conekta.
+
 <pre>
-public function index(){
-  //cargamos la libreria que usará a conekta, esta a su vez
-  //carga el archivo config "conekta" que contiene las llaves
-  //publica y privada
-  $this->load->library("conekta/conekta_main");
+class Payment extends CI_Controller {
 
-  //creamos un cargo
-  $charge = Conekta_Charge::create(array(
-    'description'=>'Stogies',
-    'reference_id'=>'9839-wolf_pack',
-    'amount'=>20000,
-    'currency'=>'MXN',
-    'card'=>"tok_test_visa_4242",
-    "details"=> array(
-      "email"=>"logan@x-men.org"
-    )
-  ));
+    public function __construct() {
+        parent::__construct();
+        //cargamos la libreria que usará a conekta, esta a su vez
+        //carga el archivo config "conekta" que contiene las llaves
+        //publica y privada
+        $this->load->library("conekta/conekta_main");
+    }
 
-  //imprimimos el objeto charge que devuelve conekta
-  print_r($charge);
+    public function index() {
+        $this->load->view("payment_new");
+    }
 
-  //para buscar un cargo existente
-  print_r(Conekta_Charge::find($charge->id));
+    public function create() {
+        $response= array("status"=>0,"msg"=>"Ocurrio un error");
+        if($this->input->is_ajax_request()){
+            
+            //obtener datos post
+            $card= $this->input->post('card');
+	   
+            try {
 
-  //cachando errores para crear o buscar cargos
-  try{
-		print_r(Conekta_Charge::find($charge->id));
-  }catch (Conekta_Error $e){
-		echo $e->getMessage();
-  }
+               //creamos un cargo
+                $charge_new = Conekta_Charge::create(array(
+                    'description'=> 'Stogies',
+                    'amount'=>20000,
+                    'currency'=>'MXN',
+                    'card'=> 'tok_test_visa_4242', //prueba, $this->input->post('token_id'),
+                    'details'=> array(
+                        'buyer'=> $card['name'],
+                        'precio'=> 2000,
+                        'cantidad'=> 1,
+                        'email'=>'logan@x-men.org'
+                    )
+                ));
+               
+                if($charge_new->status =='paid'){
+                    $response['status']=1;
+                    $response['charge_id']= $charge_new->id;
+                    $response['msg']="Pago existoso";
+                }else{
+                     $response['status']=0;
+                }
+                
+            } catch (Conekta_Error $e) {
+                $response['status']=0;
+                $response['msg']= $e->getMessage();
+            }
+        }
+
+        //Regresamos la info ...Cocinado!!
+        $json = json_encode($response);
+        echo isset($_GET['callback']) ? "{$_GET['callback']}($json)" : $json;
+    }
+
+    public function find($id) {
+
+        //para buscar un cargo existente
+        try {
+             print_r_pre(Conekta_Charge::find($id));
+        } catch (Conekta_Error $e) {
+            echo $e->getMessage();
+        }
+    }
+
 }
+
 </pre>
 </li>
 </ul>
