@@ -10,6 +10,22 @@ Implementación de conekta en CodeIgniter
 # Instalación
 <ul>
 <li>Descargar esta implementación</li>
+<li>Abrir el archivo ./application/config/config.php</li>
+<li>
+  Modificar la url que viene por defecto
+  <pre>
+    $config['base_url'] = 'http://localhost/Conekta-codeigniter/';
+  </pre>
+  Por:
+  <pre>
+    $config['base_url'] = 'http://dominio/proyecto/';
+  </pre>
+  O poner acorde al nombre descargado:
+  <pre>
+  	$config['base_url'] = 'http://localhost/Conekta-codeigniter-master/';
+  </pre>
+
+</li>
 <li>Abrir el archivo ./application/config/conekta.php</li>
 <li>
   Modificar las llaves pública y privada por defecto por las que te asignó conekta
